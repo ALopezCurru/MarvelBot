@@ -1,42 +1,32 @@
-const {Client, EmbedBuilder} = require("discord.js")
+const {Client, EmbedBuilder, Collection} = require("discord.js")
 const client = new Client({intents: [3276799]})
 
 const config = require("./config.json")
+const fs = require("fs") //Libreria que nos lee los archivos del directorio
+
+client.commands = new Collection()
+const archivos = fs.readdirSync("./comandos/").filter((s) =>{s.endsWith(".js")})//Esto lee los arhivos de la carpeta comandos y filtra lo que son los archivos js 
+
+for(arx of archivos){
+    const comando = require("./comandos/" + arx)
+    client.commands.set(comando.name, comando)
+    console.log(`El comando ${arx} ha sido cargado correctamente`)
+}
+
 
 client.on("messageCreate", async message =>{
-    if(message.content == "!hola"){
-        const embed = new EmbedBuilder()
-        .setTitle("Titulo")
-        .setURL("https://imgur.com/gallery/mXnwmvG")
-        .setDescription("Description")
-        .setAuthor({
-            name: "Tu nombre aqui",
-            iconURL: "https://i.imgur.com/Q9D499j.png",
-            url: "https://i.imgur.com/Q9D499j.png"
-        })
-        .setThumbnail("https://i.imgur.com/Q9D499j.png")
-        .setImage("https://i.imgur.com/Q9D499j.png")
-        .setFooter({
-            text: "Hola",
-            iconURL: "https://i.imgur.com/Q9D499j.png"
-           
-        })
-        .setTimestamp()
-        .setFields({
-            name: "Nombre",
-            value: "Alex",
-            inline: true
-        }, {
-            name: "Nombre",
-            value: "Lucas",
-            inline: true
-        })
-       
+    const prefix = "!"
+    if(!message.content.startsWith(prefix)) return
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const command = args.shift().toLocaleLowerCase()
 
-        message.channel.send({
-            embeds: [embed]
-        })
+    const cmd = client.commands.get(command)
+
+    if(cmd){
+        cmd.run(client, message, args)
     }
+
+    
 })
 
 client.login(config.token)
