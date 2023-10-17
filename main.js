@@ -1,4 +1,4 @@
-const {Client, EmbedBuilder, ButtonBuilder, ActionRowBuilder} = require("discord.js")
+const {Client, EmbedBuilder, ButtonBuilder, ActionRowBuilder, SelectMenuBuilder, Component, StringSelectMenuBuilder} = require("discord.js")
 const client = new Client({intents: [3276799]})
 client.on("ready", async()=>{
     console.log("El bot ya esta listo")
@@ -8,34 +8,49 @@ const config = require("./config.json")
 
 client.on("messageCreate", async message =>{
     if(message.content == "!Acciones"){
-                const btnHeroe = new ActionRowBuilder()
+                
+        const menu = new ActionRowBuilder()
         .addComponents([
-            new ButtonBuilder()
-            .setLabel("Descubre que heroe eres")
-            .setEmoji("🍏")
-            .setStyle("Primary")
-            .setCustomId("btnheroe")
+            new StringSelectMenuBuilder()
+            .setCustomId("idMenu")
+            .setPlaceholder("Nada seleccionado")
+            .addOptions([
+                {
+                    label: "Opcion 1",
+                    emoji: "❤",
+                    description: "Hola",
+                    value: "Hola"
+                },
+                {
+                    label: "Opcion 2",
+                    emoji: "😒",
+                    description: "Adios",
+                    value: "Adios"
+                }
+            ])
         ])
-
-        //
-       
-        message.channel.send({
-            components: [btnHeroe],
-           
-        })
     
+        message.channel.send({
+            components: [menu]
+        })
     }
    
 })
 
 client.on("interactionCreate", async interaction =>{
  
-    if(interaction.customId = "btnheroe"){
-        interaction.reply({
-            content: "Hola"
-        }
-        )
-    }
+   const entrada = interaction.values[0]
+   if(entrada == "Hola"){
+    interaction.update({
+        content: "Hola"
+    })
+   }
+
+   if(entrada == "Adios"){
+    interaction.update({
+        content: "Adios"
+    })
+   }
  
 })
 
